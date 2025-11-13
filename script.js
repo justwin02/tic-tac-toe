@@ -1,10 +1,31 @@
+const board = (() => {
+    let boardArray = ["", "", "", "", "", "", "", "", ""];
+
+    const getBoard = () => boardArray;
+
+    const setMark = (index, mark) => {
+        if(boardArray[index] === "") {
+            boardArray[index] = mark;
+            return true;
+        }
+        return false;
+    }
+
+    const resetBoard = () => {
+        boardArray = ["", "", "", "", "", "", "", "", ""];
+    }
+
+    return { getBoard, setMark, resetBoard };
+})();
+
+// Factory function to create player objects
 const Player = (name, mark) => {
     return { name, mark };
 };
 
 const gameController = (() => {
-    const player1 = Player("Player 1, X");
-    const player2 = Player("Player 2, O");
+    const player1 = Player("Player 1", "X");
+    const player2 = Player("Player 2", "O");
 
     let activePlayer = player1;
     let gameOver = false;
@@ -27,7 +48,8 @@ const gameController = (() => {
     };
 
     const checkWin = (boardArray, mark) => {
-        return boardArray.every(index => boardArray[index] === mark);
+        return winPatterns.some(pattern => 
+            pattern.every(index => boardArray[index] === mark));
     };
 
     const checkDraw = (boardArray) => {
@@ -40,15 +62,26 @@ const gameController = (() => {
             return;
         }
 
+        if (typeof index !== 'number' || index < 0 || index > 8) {
+            console.log("Invalid move index.");
+            return;
+        }
+
+        const placed = board.setMark(index, activePlayer.mark);
+        if (!placed) {
+            console.log("Cell already occupied. Choose another cell.");
+            return;
+        }
+
         const currentBoard = board.getBoard();
 
-        if(checkWin(currentBoard, activePlayer.mark)) {
+        if (checkWin(currentBoard, activePlayer.mark)) {
             console.log(`${activePlayer.name} wins!`);
             gameOver = true;
             return;
         }
 
-        if(checkDraw(currentBoard)) {
+        if (checkDraw(currentBoard)) {
             console.log("It's a draw!");
             gameOver = true;
             return;
@@ -66,25 +99,4 @@ const gameController = (() => {
     };
 
     return { getActivePlayer, playRound, restart };
-})();
-
-
-const board = (() => {
-    let boardArray = ["", "", "", "", "", "", "", "", ""];
-
-    const getBoard = () => boardArray;
-
-    const setMark = (index, mark) => {
-        if(boardArray[index] === "") {
-            boardArray[index] = mark;
-            return true;
-        }
-        return false;
-    }
-
-    const resetBoard = () => {
-        boardArray = ["", "", "", "", "", "", "", "", ""];
-    }
-
-    return { getBoard, setMark, resetBoard };
 })();
